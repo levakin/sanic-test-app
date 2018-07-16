@@ -4,9 +4,26 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from sanic import Blueprint
 from sanic import response
 from sanic.exceptions import abort
+from sanic_jwt import protected, exceptions
 
 from settings import Config
 from ..utils import is_valid_username, is_valid_password, is_valid_uuid
+
+
+class User:
+
+    def __init__(self, user_id, username, password, created_at):
+        self.user_id = user_id
+        self.username = username
+        self.password = password
+        self.created_at = created_at
+
+    def __repr__(self):
+        return "User(user_id='{}')".format(self.user_id)
+
+    def to_dict(self):
+        return {"user_id": self.user_id, "username": self.username, "created_at": self.created_at}
+
 
 user_bp = Blueprint('user', url_prefix='/user')
 
@@ -47,26 +64,37 @@ async def register(request):
     return response.text('OK', status=201)
 
 
-@user_bp.post("/auth")
-async def auth(request):
+async def auth(request, *args, **kwargs):
     username = request.json.get('username')
     password = request.json.get('password')
+    print(username,password)
     if username is None or password is None:
-        abort(400)  # missing arguments
+        raise exceptions.AuthenticationFailed("Missing username or password.")
     if not is_valid_username(username):
-        abort(400)  # not valid username
+        raise exceptions.AuthenticationFailed("Not valid username.")
     if not is_valid_password(password):
-        abort(400)  # not valid password
+        raise exceptions.AuthenticationFailed("Not valid password.")
 
-    user = await db.users.find_one({'username': username, 'password': password})
-    return response.json({'id': user.get('user_id')}, status=200)
+    user = await db.users.find_one({'username': username})
+    if user is None:
+        raise exceptions.AuthenticationFailed("User not found.")
+    print(password, user.get('password'))
+    if password != user.get('password'):
+        raise exceptions.AuthenticationFailed("Password is incorrect.")
+
+    return dict(user_id=user.get('user_id'), username=user.get('username'))
+
+# Initialize(user_bp, authenticate=auth)
 
 
 @user_bp.get("/<user_id>/")
+@protected()
 async def get_user(request, user_id):
     if not is_valid_uuid(user_id):
         abort(400)
     user = await db.users.find_one({'user_id': user_id})
+    if user is None:
+        abort(404)
     return response.json({"user_id": user_id,
                           "username": user.get("username"),
                           "created_at": user.get("created_at")}, status=200)
