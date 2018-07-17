@@ -1,5 +1,5 @@
 
-#Dockerfile*
+Dockerfile*
 docker-compose*
 .dockerignore
 .git
@@ -9,6 +9,4 @@ LICENSE.md
 .idea
 __pycache__
 .DS_Store/
-migrations/
 __pycache__
-tmp/*

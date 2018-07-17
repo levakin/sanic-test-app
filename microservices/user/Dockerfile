@@ -1,7 +1,7 @@
 FROM python:3.6-slim
 MAINTAINER "<levakin levakin@protonmail.com>"
 
-ADD ../.. /app
+ADD . /app
 WORKDIR /app
 
 RUN apt-get update && \
@@ -12,4 +12,4 @@ RUN apt-get update && \
 
 EXPOSE 8000
 
-CMD ["python", "server.py"]
+CMD ["python", "user.py"]
