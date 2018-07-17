@@ -11,8 +11,7 @@ from sanic_jwt import exceptions, protected
 import settings
 from app.utils import is_valid_username, is_valid_hash, is_valid_uuid
 
-
-user_bp = Blueprint('app', url_prefix='/app')
+user_bp = Blueprint('users', url_prefix='/user')
 
 
 @user_bp.listener('before_server_start')
