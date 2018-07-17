@@ -8,6 +8,7 @@ class Config(object):
     LOGO = config('LOGO')
     HOST = config('HOST', default='127.0.0.1')
     PORT = config('PORT', default='8000', cast=int)
+    SECRET = config('SECRET', cast=str)
 
 # # class ProductionConfig(Config):
 #

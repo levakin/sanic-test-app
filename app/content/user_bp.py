@@ -1,28 +1,28 @@
 from uuid import uuid4
 
 from motor.motor_asyncio import AsyncIOMotorClient
+from passlib.hash import pbkdf2_sha256
 from sanic import Blueprint
 from sanic import response
 from sanic.exceptions import abort
-from sanic_jwt import protected, exceptions
+from sanic_jwt import exceptions, protected
 
 from settings import Config
 from ..utils import is_valid_username, is_valid_password, is_valid_uuid
 
-
-class User:
-
-    def __init__(self, user_id, username, password, created_at):
-        self.user_id = user_id
-        self.username = username
-        self.password = password
-        self.created_at = created_at
-
-    def __repr__(self):
-        return "User(user_id='{}')".format(self.user_id)
-
-    def to_dict(self):
-        return {"user_id": self.user_id, "username": self.username, "created_at": self.created_at}
+# class User:
+#
+#     def __init__(self, user_id, username, password, created_at):
+#         self.user_id = user_id
+#         self.username = username
+#         self.password = password
+#         self.created_at = created_at
+#
+#     def __repr__(self):
+#         return "User(user_id='{}')".format(self.user_id)
+#
+#     def to_dict(self):
+#         return {"user_id": self.user_id, "username": self.username, "created_at": self.created_at}
 
 
 user_bp = Blueprint('user', url_prefix='/user')
@@ -51,13 +51,14 @@ async def register(request):
         abort(400)  # not valid password
     if await db.users.count_documents({'username': username}) is not 0:
         abort(400)  # existing user
+    password_hash = pbkdf2_sha256.hash(password)
     created_at = int(created_at)
     user_id = str(uuid4())
 
     await db.users.insert_one({
         'user_id': user_id,
         'username': username,
-        'password': password,
+        'password': password_hash,
         'created_at': created_at
     })
 
@@ -67,7 +68,6 @@ async def register(request):
 async def auth(request, *args, **kwargs):
     username = request.json.get('username')
     password = request.json.get('password')
-    print(username,password)
     if username is None or password is None:
         raise exceptions.AuthenticationFailed("Missing username or password.")
     if not is_valid_username(username):
@@ -78,13 +78,11 @@ async def auth(request, *args, **kwargs):
     user = await db.users.find_one({'username': username})
     if user is None:
         raise exceptions.AuthenticationFailed("User not found.")
-    print(password, user.get('password'))
-    if password != user.get('password'):
+    is_verified = pbkdf2_sha256.verify(password, user.get('password'))
+    if not is_verified:
         raise exceptions.AuthenticationFailed("Password is incorrect.")
 
     return dict(user_id=user.get('user_id'), username=user.get('username'))
-
-# Initialize(user_bp, authenticate=auth)
 
 
 @user_bp.get("/<user_id>/")
