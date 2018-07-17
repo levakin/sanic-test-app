@@ -12,4 +12,4 @@ RUN apt-get update && \
 
 EXPOSE 8000
 
-CMD ["python", "user.py"]
+CMD ["python", "users.py"]
