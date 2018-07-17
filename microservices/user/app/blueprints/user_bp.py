@@ -4,36 +4,21 @@ from uuid import uuid4
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from passlib.hash import pbkdf2_sha256
-from sanic import Blueprint
-from sanic import response
+from sanic import Blueprint, response
 from sanic.exceptions import abort
 from sanic_jwt import exceptions, protected
 
-from settings import Config
-from ..utils import is_valid_username, is_valid_password, is_valid_uuid
-
-# class User:
-#
-#     def __init__(self, user_id, username, password, created_at):
-#         self.user_id = user_id
-#         self.username = username
-#         self.password = password
-#         self.created_at = created_at
-#
-#     def __repr__(self):
-#         return "User(user_id='{}')".format(self.user_id)
-#
-#     def to_dict(self):
-#         return {"user_id": self.user_id, "username": self.username, "created_at": self.created_at}
+import settings
+from app.utils import is_valid_username, is_valid_password, is_valid_uuid
 
 
-user_bp = Blueprint('user', url_prefix='/user')
+user_bp = Blueprint('app', url_prefix='/app')
 
 
 @user_bp.listener('before_server_start')
 async def setup_connection(app, loop):
     global db
-    motor_uri = Config.DATABASE_URI
+    motor_uri = settings.DATABASE_URI
     client = AsyncIOMotorClient(motor_uri, io_loop=loop)
     db = client.test_db
 
@@ -52,7 +37,7 @@ async def register(request):
     if not is_valid_password(password):
         abort(400)  # not valid password
     if await db.users.count_documents({'username': username}) is not 0:
-        abort(400)  # existing user
+        abort(400)  # existing app
     password_hash = pbkdf2_sha256.hash(password)
     created_at = int(created_at)
     user_id = str(uuid4())
@@ -98,3 +83,18 @@ async def get_user(request, user_id):
     return response.json({"user_id": user_id,
                           "username": user.get("username"),
                           "created_at": user.get("created_at")}, status=200)
+
+# class User:
+#
+#     def __init__(self, user_id, username, password, created_at):
+#         self.user_id = user_id
+#         self.username = username
+#         self.password = password
+#         self.created_at = created_at
+#
+#     def __repr__(self):
+#         return "User(user_id='{}')".format(self.user_id)
+#
+#     def to_dict(self):
+#         return {"user_id": self.user_id, "username": self.username, "created_at": self.created_at}
+

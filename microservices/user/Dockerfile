@@ -1,7 +1,7 @@
 FROM python:3.6-slim
 MAINTAINER "<levakin levakin@protonmail.com>"
 
-ADD . /app
+ADD ../.. /app
 WORKDIR /app
 
 RUN apt-get update && \
