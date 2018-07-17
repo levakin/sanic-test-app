@@ -9,7 +9,7 @@ from sanic.exceptions import abort
 from sanic_jwt import exceptions, protected
 
 import settings
-from app.utils import is_valid_username, is_valid_password, is_valid_uuid
+from app.utils import is_valid_username, is_valid_hash, is_valid_uuid
 
 
 user_bp = Blueprint('app', url_prefix='/app')
@@ -34,7 +34,7 @@ async def register(request):
         abort(400)  # not digit
     if not is_valid_username(username):
         abort(400)  # not valid username
-    if not is_valid_password(password):
+    if not is_valid_hash(password):
         abort(400)  # not valid password
     if await db.users.count_documents({'username': username}) is not 0:
         abort(400)  # existing app
@@ -59,14 +59,14 @@ async def auth(request, *args, **kwargs):
         raise exceptions.AuthenticationFailed("Missing username or password.")
     if not is_valid_username(username):
         raise exceptions.AuthenticationFailed("Not valid username.")
-    if not is_valid_password(password):
+    if not is_valid_hash(password):
         raise exceptions.AuthenticationFailed("Not valid password.")
 
     user = await db.users.find_one({'username': username})
     if user is None:
         raise exceptions.AuthenticationFailed("User not found.")
-    is_verified = pbkdf2_sha256.verify(password, user.get('password'))
-    if not is_verified:
+    is_correct = password == user.get('password')
+    if not is_correct:
         raise exceptions.AuthenticationFailed("Password is incorrect.")
 
     return dict(user_id=user.get('user_id'), username=user.get('username'))
@@ -83,18 +83,4 @@ async def get_user(request, user_id):
     return response.json({"user_id": user_id,
                           "username": user.get("username"),
                           "created_at": user.get("created_at")}, status=200)
-
-# class User:
-#
-#     def __init__(self, user_id, username, password, created_at):
-#         self.user_id = user_id
-#         self.username = username
-#         self.password = password
-#         self.created_at = created_at
-#
-#     def __repr__(self):
-#         return "User(user_id='{}')".format(self.user_id)
-#
-#     def to_dict(self):
-#         return {"user_id": self.user_id, "username": self.username, "created_at": self.created_at}
 
