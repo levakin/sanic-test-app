@@ -64,7 +64,7 @@ async def register(request):
         'created_at': created_at
     })
 
-    return response.text('OK', status=201)
+    return response.json({'user_id': user_id}, status=201)
 
 
 async def auth(request, *args, **kwargs):
