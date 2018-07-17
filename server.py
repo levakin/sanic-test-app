@@ -12,7 +12,8 @@ sanicjwt = Initialize(
     app,
     authenticate=auth,
     url_prefix='/user/auth',
-    secret=Config.SECRET)
+    secret=Config.SECRET,
+    expiration_delta=60 * 60 * 24)
 
 app.config.update(dict(LOGO=Config.LOGO))
 
