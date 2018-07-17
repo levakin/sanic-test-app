@@ -1,0 +1,12 @@
+
+Dockerfile*
+docker-compose*
+.dockerignore
+.git
+README.md
+LICENSE.md
+.vscode
+.idea
+__pycache__
+.DS_Store/
+__pycache__
