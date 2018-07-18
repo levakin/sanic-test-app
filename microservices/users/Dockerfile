@@ -6,8 +6,7 @@ WORKDIR /app
 
 RUN apt-get update && \
  apt-get install --no-install-recommends -y build-essential && \
- pip3 install pipenv && \
- pipenv install --system --deploy --ignore-pipfile
+ pip3 install --no-cache-dir -r requirements.txt
 
 
 EXPOSE 8000
