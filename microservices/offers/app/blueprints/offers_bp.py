@@ -46,13 +46,14 @@ async def create(request):
     if not is_valid_text(text):
         abort(400)  # not valid text
 
-    if await db.users.count_documents({'user_id': user_id}) is 0:
-        abort(404, message="User not found")
-
     offer_id = str(uuid4())
     created_at = int(time())
 
     user = await db.users.find_one({'user_id': user_id})
+
+    if user is None:
+        abort(404)
+
     user['offers_ids'].append(offer_id)
     db.users.replace_one({'user_id': user_id}, user)
 
@@ -79,6 +80,9 @@ async def get_offers(request):
     if offer_id:
         offer = await db.offers.find_one({'offer_id': offer_id})
 
+        if offer is None:
+            abort(404)
+
         return response.json({"offer_id": offer.get("offer_id"),
                               "user_id": offer.get("user_id"),
                               "title": offer.get("title"),
@@ -86,6 +90,10 @@ async def get_offers(request):
                               "created_at": offer.get("created_at")})
     else:
         user = await db.users.find_one({'user_id': user_id})
+
+        if user is None:
+            abort(404)
+
         offers = []
         offers_ids = user['offers_ids']
         for offer_id in offers_ids:
