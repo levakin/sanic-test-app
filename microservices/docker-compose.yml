@@ -1,9 +1,15 @@
 version: '3'
 services:
   users:
-    build: .
+    build: ./users
     ports:
      - "8000:8000"
+    depends_on:
+     - mongo
+  offers:
+    build: ./offers
+    ports:
+     - "8001:8001"
     depends_on:
      - mongo
   mongo:
