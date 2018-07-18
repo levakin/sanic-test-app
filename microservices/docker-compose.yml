@@ -6,17 +6,37 @@ services:
      - "8000:8000"
     depends_on:
      - mongo
+    environment:
+     - DEBUG = True
+     - DATABASE_URI = mongo
+     - WORKERS = 2
+     - LOGO = None
+     - HOST = 0.0.0.0
+     - PORT = 8000
+     - SECRET = secret
   offers:
     build: ./offers
     ports:
      - "8001:8001"
     depends_on:
      - mongo
+    environment:
+     - DEBUG = True
+     - DATABASE_URI = mongo
+     - WORKERS = 2
+     - LOGO = None
+     - HOST = 0.0.0.0
+     - PORT = 8000
+     - SECRET = secret
+     - MAX_TITLE_LEN = 30
+     - MAX_TEXT_LEN = 80
   mongo:
     image: "mongo:3.6.6"
     volumes:
       - mongo-data:/data/db
     ports:
       - "27017:27017"
+
+
 volumes:
   mongo-data:

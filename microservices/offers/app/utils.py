@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
-import settings
+from config import Config
 
 UUID_LENGTH = 36
 
@@ -14,8 +14,8 @@ def is_valid_uuid(uuid):
 
 
 def is_valid_title(title):
-    return len(title) <= settings.MAX_TITLE_LEN
+    return len(title) <= Config.MAX_TITLE_LEN
 
 
 def is_valid_text(title):
-    return len(title) <= settings.MAX_TEXT_LEN
+    return len(title) <= Config.MAX_TEXT_LEN

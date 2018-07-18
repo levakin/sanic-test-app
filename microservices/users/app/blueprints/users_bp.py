@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from uuid import uuid4
+from time import time
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from sanic import Blueprint, response
 from sanic.exceptions import abort
 from sanic_jwt import exceptions, protected
 
-import settings
+from config import Config
 from app.utils import is_valid_username, is_valid_hash, is_valid_uuid
 
 user_bp = Blueprint('users', url_prefix='/user')
@@ -16,7 +17,7 @@ user_bp = Blueprint('users', url_prefix='/user')
 @user_bp.listener('before_server_start')
 async def setup_connection(app, loop):
     global db
-    motor_uri = settings.DATABASE_URI
+    motor_uri = Config.DATABASE_URI
     client = AsyncIOMotorClient(motor_uri, io_loop=loop)
     db = client.test_db
 
@@ -25,15 +26,13 @@ async def setup_connection(app, loop):
 async def register(request):
     username = request.json.get('username')
     password = request.json.get('password')
-    created_at = request.json.get('created_at')
 
-    if username is None or password is None or created_at is None:
+    if username is None or password is None:
         abort(400)  # missing arguments
 
     try:
         username = str(username)
         password = str(password)
-        created_at = int(created_at)
     except ValueError:
         abort(400)
 
@@ -46,6 +45,7 @@ async def register(request):
         abort(400)  # existing username
 
     user_id = str(uuid4())
+    created_at = int(time())
 
     await db.users.insert_one({
         'user_id': user_id,

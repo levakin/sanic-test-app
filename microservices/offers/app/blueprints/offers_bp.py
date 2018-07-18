@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from uuid import uuid4
+from time import time
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from sanic import Blueprint, response
 from sanic.exceptions import abort
 from sanic_jwt import protected
 
-import settings
+from config import Config
 from app.utils import is_valid_uuid, is_valid_text, is_valid_title
 
 offers_bp = Blueprint('offers', url_prefix='/offer')
@@ -16,7 +17,7 @@ offers_bp = Blueprint('offers', url_prefix='/offer')
 @offers_bp.listener('before_server_start')
 async def setup_connection(app, loop):
     global db
-    motor_uri = settings.DATABASE_URI
+    motor_uri = Config.DATABASE_URI
     client = AsyncIOMotorClient(motor_uri, io_loop=loop)
     db = client.test_db
 
@@ -27,16 +28,14 @@ async def create(request):
     user_id = request.json.get('user_id')
     title = request.json.get('title')
     text = request.json.get('text')
-    created_at = request.json.get('created_at')
 
-    if user_id is None or title is None or text is None or created_at is None:
+    if user_id is None or title is None or text is None:
         abort(400)  # missing arguments
 
     try:
         user_id = str(user_id)
         title = str(title)
         text = str(text)
-        created_at = int(created_at)
     except ValueError:
         abort(400)
 
@@ -51,6 +50,7 @@ async def create(request):
         abort(404, message="User not found")
 
     offer_id = str(uuid4())
+    created_at = int(time())
 
     user = await db.users.find_one({'user_id': user_id})
     user['offers_ids'].append(offer_id)

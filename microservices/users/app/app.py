@@ -3,7 +3,7 @@
 from sanic import Sanic
 from sanic_jwt import Initialize
 
-import settings
+from config import Config
 from app.blueprints import user_bp, auth
 
 
@@ -14,13 +14,13 @@ def get_app():
         app,
         authenticate=auth,
         url_prefix='/user/auth',
-        secret=settings.SECRET,
+        secret=Config.SECRET,
         expiration_delta=60 * 60 * 24,
         cookie_set=True,
         cookie_strict=False,
         auth_mode=True)
 
-    app.config.update(dict(LOGO=settings.LOGO))
+    app.config.update(dict(LOGO=Config.LOGO))
 
     app.blueprint(user_bp)
 
