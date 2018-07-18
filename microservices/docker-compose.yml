@@ -7,13 +7,13 @@ services:
     depends_on:
      - mongo
     environment:
-     - DEBUG = True
-     - DATABASE_URI = mongo
-     - WORKERS = 2
-     - LOGO = None
-     - HOST = 0.0.0.0
-     - PORT = 8000
-     - SECRET = secret
+     - DEBUG=False
+     - DATABASE_URI=mongo
+     - WORKERS=2
+     - LOGO=None
+     - HOST=0.0.0.0
+     - PORT=8000
+     - SECRET=secret
   offers:
     build: ./offers
     ports:
@@ -21,22 +21,21 @@ services:
     depends_on:
      - mongo
     environment:
-     - DEBUG = True
-     - DATABASE_URI = mongo
-     - WORKERS = 2
-     - LOGO = None
-     - HOST = 0.0.0.0
-     - PORT = 8000
-     - SECRET = secret
-     - MAX_TITLE_LEN = 30
-     - MAX_TEXT_LEN = 80
+     - DEBUG=False
+     - DATABASE_URI=mongo
+     - WORKERS=2
+     - LOGO=None
+     - HOST=0.0.0.0
+     - PORT=8001
+     - SECRET=secret
+     - MAX_TITLE_LEN=30
+     - MAX_TEXT_LEN=80
   mongo:
     image: "mongo:3.6.6"
     volumes:
       - mongo-data:/data/db
     ports:
       - "27017:27017"
-
 
 volumes:
   mongo-data:
