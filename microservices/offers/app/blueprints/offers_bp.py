@@ -22,6 +22,7 @@ async def setup_connection(app, loop):
 
 
 @offers_bp.post('/create')
+@protected()
 async def create(request):
     user_id = request.json.get('user_id')
     title = request.json.get('title')
@@ -67,6 +68,7 @@ async def create(request):
 
 
 @offers_bp.post('/')
+@protected()
 async def get_offers(request):
     user_id = request.json.get('user_id')
     offer_id = request.json.get('offer_id')
