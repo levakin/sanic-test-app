@@ -53,7 +53,7 @@ async def create(request):
     offer_id = str(uuid4())
 
     user = await db.users.find_one({'user_id': user_id})
-    user['offers'].append(offer_id)
+    user['offers_ids'].append(offer_id)
     db.users.replace_one({'user_id': user_id}, user)
 
     await db.offers.insert_one({
@@ -87,7 +87,7 @@ async def get_offers(request):
     else:
         user = await db.users.find_one({'user_id': user_id})
         offers = []
-        offers_ids = user['offers']
+        offers_ids = user['offers_ids']
         for offer_id in offers_ids:
             offer = await db.offers.find_one({'offer_id': offer_id})
             offer_dump = {"offer_id": offer.get("offer_id"),

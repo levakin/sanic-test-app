@@ -52,7 +52,7 @@ async def register(request):
         'username': username,
         'password': password,
         'created_at': created_at,
-        'offers': []})
+        'offers_ids': []})
 
     return response.json({'user_id': user_id}, status=201)
 
