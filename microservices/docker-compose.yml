@@ -32,6 +32,7 @@ services:
      - MAX_TEXT_LEN=80
   mongo:
     image: "mongo:3.6.6"
+    restart: always
     volumes:
       - mongo-data:/data/db
     ports:
