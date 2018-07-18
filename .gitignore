@@ -67,3 +67,5 @@ target/
 .DS_store
 
 migrations/
+
+.env

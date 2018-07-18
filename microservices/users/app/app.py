@@ -3,8 +3,8 @@
 from sanic import Sanic
 from sanic_jwt import Initialize
 
-from app.blueprints import user_bp, auth
 import settings
+from app.blueprints import user_bp, auth
 
 
 def get_app():
@@ -13,9 +13,12 @@ def get_app():
     Initialize(
         app,
         authenticate=auth,
-        url_prefix='/app/auth',
+        url_prefix='/user/auth',
         secret=settings.SECRET,
-        expiration_delta=60 * 60 * 24)
+        expiration_delta=60 * 60 * 24,
+        cookie_set=True,
+        cookie_strict=False,
+        auth_mode=True)
 
     app.config.update(dict(LOGO=settings.LOGO))
 
