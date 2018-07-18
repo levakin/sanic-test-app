@@ -23,15 +23,20 @@ async def setup_connection(app, loop):
 
 @user_bp.post("/registry")
 async def register(request):
-    try:
-        username = str(request.json.get('username'))
-        password = str(request.json.get('password'))
-        created_at = int(request.json.get('created_at'))
-    except ValueError:
-        abort(400)
+    username = request.json.get('username')
+    password = request.json.get('password')
+    created_at = request.json.get('created_at')
 
     if username is None or password is None or created_at is None:
         abort(400)  # missing arguments
+
+    try:
+        username = str(username)
+        password = str(password)
+        created_at = int(created_at)
+    except ValueError:
+        abort(400)
+
     if not is_valid_username(username):
         abort(400)  # not valid username
     if not is_valid_hash(password):
@@ -53,14 +58,18 @@ async def register(request):
 
 
 async def auth(request, *args, **kwargs):
-    try:
-        username = str(request.json.get('username'))
-        password = str(request.json.get('password'))
-    except ValueError:
-        abort(400)
+    username = request.json.get('username')
+    password = request.json.get('password')
 
     if username is None or password is None:
         raise exceptions.AuthenticationFailed("Missing username or password.")
+
+    try:
+        username = str(username)
+        password = str(password)
+    except ValueError:
+        abort(400)
+
     if not is_valid_username(username):
         raise exceptions.AuthenticationFailed("Not valid username.")
     if not is_valid_hash(password):

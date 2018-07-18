@@ -23,16 +23,22 @@ async def setup_connection(app, loop):
 
 @offers_bp.post('/create')
 async def create(request):
-    try:
-        user_id = str(request.json.get('user_id'))
-        title = str(request.json.get('title'))
-        text = str(request.json.get('text'))
-        created_at = int(request.json.get('created_at'))
-    except ValueError:
-        abort(400)
+    user_id = request.json.get('user_id')
+    title = request.json.get('title')
+    text = request.json.get('text')
+    created_at = request.json.get('created_at')
 
     if user_id is None or title is None or text is None or created_at is None:
         abort(400)  # missing arguments
+
+    try:
+        user_id = str(user_id)
+        title = str(title)
+        text = str(text)
+        created_at = int(created_at)
+    except ValueError:
+        abort(400)
+
     if not is_valid_uuid(user_id):
         abort(400)  # not valid uuid
     if not is_valid_title(title):
@@ -45,9 +51,9 @@ async def create(request):
 
     offer_id = str(uuid4())
 
-    document = await db.users.find_one({'user_id': user_id})
-    document['offers'].append(offer_id)
-    db.users.replace_one({'user_id': user_id}, document)
+    user = await db.users.find_one({'user_id': user_id})
+    user['offers'].append(offer_id)
+    db.users.replace_one({'user_id': user_id}, user)
 
     await db.offers.insert_one({
         'offer_id': offer_id,
@@ -58,3 +64,34 @@ async def create(request):
     })
 
     return response.json({'offer_id': offer_id}, status=201)
+
+
+@offers_bp.post('/')
+async def get_offers(request):
+    user_id = request.json.get('user_id')
+    offer_id = request.json.get('offer_id')
+
+    if user_id is None and offer_id is None:
+        abort(400)  # missing arguments
+
+    if offer_id:
+        offer = await db.offers.find_one({'offer_id': offer_id})
+
+        return response.json({"offer_id": offer.get("offer_id"),
+                              "user_id": offer.get("user_id"),
+                              "title": offer.get("title"),
+                              "text": offer.get("text"),
+                              "created_at": offer.get("created_at")})
+    else:
+        user = await db.users.find_one({'user_id': user_id})
+        offers = []
+        offers_ids = user['offers']
+        for offer_id in offers_ids:
+            offer = await db.offers.find_one({'offer_id': offer_id})
+            offer_dump = {"offer_id": offer.get("offer_id"),
+                          "user_id": offer.get("user_id"),
+                          "title": offer.get("title"),
+                          "text": offer.get("text"),
+                          "created_at": offer.get("created_at")}
+            offers.append(offer_dump)
+        return response.json({"offers": offers})
