@@ -102,4 +102,4 @@ async def get_user(request, user_id):
     return response.json({"user_id": user_id,
                           "username": user.get("username"),
                           "created_at": user.get("created_at"),
-                          "offers": user.get("offers", [])}, status=200)
+                          "offers_ids": user.get("offers_ids", [])}, status=200)
