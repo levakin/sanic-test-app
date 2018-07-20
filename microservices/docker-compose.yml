@@ -14,6 +14,8 @@ services:
      - HOST=0.0.0.0
      - PORT=8000
      - SECRET=secret
+     - LOGIN_MIN_LENGTH=1
+     - LOGIN_MAX_LENGTH=32
   offers:
     build: ./offers
     ports:
@@ -30,8 +32,6 @@ services:
      - SECRET=secret
      - MAX_TITLE_LEN=30
      - MAX_TEXT_LEN=80
-     - LOGIN_MIN_LENGTH=1
-     - LOGIN_MAX_LENGTH=32
   mongo:
     image: "mongo:3.6.6"
     restart: always
