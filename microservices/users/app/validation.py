@@ -30,7 +30,7 @@ def is_valid_uuid(uuid_string):
         # is not a valid hex code for a UUID.
         return False
 
-    return val.hex == uuid_string
+    return str(val) == uuid_string
 
 
 def is_valid_chars(word):
