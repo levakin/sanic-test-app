@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from uuid import uuid4
 from time import time
+from uuid import uuid4
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from sanic import Blueprint, response
 from sanic.exceptions import abort
 from sanic_jwt import exceptions, protected
 
+from app.validation import is_valid_username, is_valid_hash, is_valid_uuid
 from config import Config
-from app.utils import is_valid_username, is_valid_hash, is_valid_uuid
 
 user_bp = Blueprint('users', url_prefix='/user')
 
@@ -19,7 +19,7 @@ async def setup_connection(app, loop):
     global db
     motor_uri = Config.DATABASE_URI
     client = AsyncIOMotorClient(motor_uri, io_loop=loop)
-    db = client.test_db
+    db = client.microservices
 
 
 @user_bp.post("/registry")

@@ -12,3 +12,5 @@ class Config:
     HOST = os.getenv('HOST', '127.0.0.1')
     PORT = int(os.getenv('PORT', 8000))
     SECRET = os.getenv('SECRET', 'secret')
+    LOGIN_MIN_LENGTH = int(os.getenv('LOGIN_MIN_LENGTH', 1))
+    LOGIN_MAX_LENGTH = int(os.getenv('LOGIN_MAX_LENGTH', 32))
